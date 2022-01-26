@@ -1,4 +1,4 @@
-# 3D Github Contribution viewer
+# 3D Github Contributions viewer
 
 ### Built with Svelte + ThreeJS
 
