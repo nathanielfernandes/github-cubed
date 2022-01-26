@@ -53,7 +53,7 @@
   getContributions();
 
   const updateContributions = debounce(() => {
-    const new_url = `${window.location.protocol}//${window.location.host}?username=${username}`;
+    const new_url = `${window.location.protocol}//${window.location.host}/github-cubed?username=${username}`;
     window.history.replaceState({ path: new_url }, document.title, new_url);
     getContributions();
   }, 1000);
