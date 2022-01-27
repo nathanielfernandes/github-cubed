@@ -223,14 +223,16 @@
         <AmbientLight {scene} intensity={1.25} />
 
         {#if objects}
-          <Mesh
-            {scene}
-            geometry={font_geometry}
-            material={fontMaterial}
-            mat={{ roughness: 1.0, metalness: 0.1, color: fontColor }}
-            pos={fontPos}
-            rot={fontRot}
-          />
+          {#if font_geometry}
+            <Mesh
+              {scene}
+              geometry={font_geometry}
+              material={fontMaterial}
+              mat={{ roughness: 1.0, metalness: 0.1, color: fontColor }}
+              pos={fontPos}
+              rot={fontRot}
+            />
+          {/if}
 
           <Mesh
             {scene}
