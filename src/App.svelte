@@ -62,7 +62,7 @@
   }, 1000);
 
   let info: { count: number; date: string };
-  let rotate = false;
+  let rotate = true;
 
   let objects: Array<{
     geometry: BufferGeometry;
@@ -101,12 +101,14 @@
   const fontMaterial = new MeshStandardMaterial();
   const fontColor = intensity["0"];
   const fontLoader = new FontLoader();
-  const fontPos: Array3 = [(username.length * 0.45) / -2.0, -0.7, 2.0];
+
+  let fontPos: Array3 = [(username.length * 0.45) / -2.0, -0.7, 2.0];
   const fontRot: Array3 = [0, 0, 0];
   const fontSize = 0.6;
   const fontDepth = 0.5;
 
   $: if (username) {
+    fontPos = [(username.length * 0.45) / -2.0, -0.7, 2.0];
     fontLoader.load("./JetBrains-Mono_Bold.json", (font) => {
       font_geometry = new TextGeometry(username, {
         font: font,
@@ -158,7 +160,7 @@
 
   let w = 1000;
   let h = 1000;
-  let mounted = true;
+  let mounted = false;
 
   const resize = debounce(async () => {
     mounted = false;
