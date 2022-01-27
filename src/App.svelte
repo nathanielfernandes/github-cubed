@@ -12,6 +12,9 @@
     OrbitControls,
     BufferGeometry,
     Color,
+    FontLoader,
+    TextGeometry,
+    Geometry,
   } from "svelthree";
   import type { Array3 } from "svelthree/src/utils/Sv3Types.svelte";
   import { onMount, tick } from "svelte";
@@ -58,6 +61,9 @@
     getContributions();
   }, 1000);
 
+  let info: { count: number; date: string };
+  let rotate = false;
+
   let objects: Array<{
     geometry: BufferGeometry;
     material: MeshStandardMaterial;
@@ -91,8 +97,29 @@
     "4": new Color(0x39d353),
   };
 
+  let font_geometry: Geometry;
+  const fontMaterial = new MeshStandardMaterial();
+  const fontColor = intensity["0"];
+  const fontLoader = new FontLoader();
+  const fontPos: Array3 = [(username.length * 0.45) / -2.0, -0.7, 2.0];
+  const fontRot: Array3 = [0, 0, 0];
+  const fontSize = 0.6;
+  const fontDepth = 0.5;
+
+  $: if (username) {
+    fontLoader.load("./JetBrains-Mono_Bold.json", (font) => {
+      font_geometry = new TextGeometry(username, {
+        font: font,
+        size: fontSize,
+        height: fontDepth,
+        curveSegments: 12,
+      });
+    });
+  }
+
   $: if (contributions) {
     let offsetX = contributions.length * (cubeSpacing / -2.0);
+    const offsetZDefault = 8 * (cubeSpacing / -2.0);
     let offsetY = 0;
     let offsetZ = 0;
 
@@ -102,14 +129,10 @@
       7 * cubeSpacing
     );
     baseMaterial = new MeshStandardMaterial();
-    basePos = [
-      cubeSpacing - cubeSpacing / 2.0,
-      baseHeight / -2.0,
-      (8 * cubeSpacing) / 2.0,
-    ];
+    basePos = [cubeSpacing - cubeSpacing / 2.0, baseHeight / -2.0, 0];
 
     objects = contributions.flatMap((week) => {
-      offsetZ = 0;
+      offsetZ = offsetZDefault;
       offsetX += cubeSpacing;
 
       return week.map((day) => {
@@ -135,7 +158,7 @@
 
   let w = 1000;
   let h = 1000;
-  let mounted = false;
+  let mounted = true;
 
   const resize = debounce(async () => {
     mounted = false;
@@ -155,8 +178,6 @@
       window.removeEventListener("resize", resize);
     };
   });
-
-  let info: { count: number; date: string };
 </script>
 
 <main>
@@ -181,6 +202,13 @@
     </h2>
   {/if}
 
+  <button
+    class={`sub rotate ${rotate ? "faded" : ""}`}
+    on:click={() => {
+      rotate = !rotate;
+    }}>R</button
+  >
+
   {#if mounted && total}
     <Canvas let:sti {w} {h} interactive>
       <Scene {sti} let:scene id="scene1" props={{ background: 0x334461 }}>
@@ -193,6 +221,15 @@
         <AmbientLight {scene} intensity={1.25} />
 
         {#if objects}
+          <Mesh
+            {scene}
+            geometry={font_geometry}
+            material={fontMaterial}
+            mat={{ roughness: 1.0, metalness: 0.1, color: fontColor }}
+            pos={fontPos}
+            rot={fontRot}
+          />
+
           <Mesh
             {scene}
             geometry={baseGeometry}
@@ -218,7 +255,7 @@
         {/if}
 
         <DirectionalLight {scene} pos={[1, 2, 1]} intensity={0.8} />
-        <OrbitControls {scene} enableDamping autoRotate />
+        <OrbitControls {scene} enableDamping autoRotate={rotate} />
       </Scene>
 
       <WebGLRenderer
@@ -240,6 +277,25 @@
   .info {
     margin: 4rem 1.5rem;
     font-size: 1rem;
+  }
+
+  .rotate {
+    right: 1rem;
+    top: 1rem;
+    margin: 0;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    align-items: center;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    opacity: 0.8;
+  }
+
+  .faded {
+    opacity: 0.4;
   }
 
   main {
